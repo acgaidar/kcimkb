@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KCC / KCIM Knowledge Base — DPSCD RFP 27-0011</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --paper:#FAF9F5;
+    --paper-raised:#FFFFFF;
+    --ink:#1B2A4A;
+    --ink-soft:#3D4A63;
+    --slate:#6B7280;
+    --line:#DCD7CB;
+    --line-soft:#E9E5DA;
+    --moss:#5E7F5E;
+    --moss-bg:#E7EEE3;
+    --amber:#B4791F;
+    --amber-bg:#F6E9D3;
+    --brick:#A2503F;
+    --brick-bg:#F3E1DB;
+    --stone:#8A8378;
+    --stone-bg:#EAE7DF;
+    --accent:#B4791F;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    border-bottom:1px solid var(--line);
+    background:var(--paper-raised);
+    padding:28px 32px 22px;
+  }
+  .header-inner{
+    max-width:1180px;
+    margin:0 auto;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--amber);
+    margin:0 0 6px;
+  }
+  h1{
+    font-family:'Zilla Slab',serif;
+    font-weight:700;
+    font-size:32px;
+    line-height:1.1;
+    margin:0 0 6px;
+    color:var(--ink);
+  }
+  .subtitle{
+    font-size:14px;
+    color:var(--slate);
+    margin:0;
+    max-width:560px;
+  }
+  .stat-strip{
+    display:flex;
+    gap:22px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .stat{
+    text-align:right;
+    cursor:pointer;
+    user-select:none;
+    padding-bottom:2px;
+    border-bottom:2px solid transparent;
+    transition:border-color .15s ease;
+  }
+  .stat.active{border-color:currentColor;}
+  .stat-num{
+    display:block;
+    font-size:22px;
+    font-weight:600;
+    line-height:1.1;
+  }
+  .stat-label{
+    display:block;
+    font-size:10px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    margin-top:2px;
+  }
+  .stat.s-y{color:var(--moss);}
+  .stat.s-partial{color:var(--amber);}
+  .stat.s-n{color:var(--brick);}
+  .stat.s-unknown{color:var(--stone);}
+  .stat.s-all{color:var(--ink);}
+
+  /* ---------- Layout ---------- */
+  .layout{
+    max-width:1180px;
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:230px 1fr;
+    gap:32px;
+    padding:28px 32px 80px;
+  }
+  @media (max-width:820px){
+    .layout{grid-template-columns:1fr;}
+  }
+
+  /* ---------- Sidebar ---------- */
+  .sidebar{position:sticky; top:20px; align-self:start;}
+  .search-box{
+    position:relative;
+    margin-bottom:22px;
+  }
+  .search-box input{
+    width:100%;
+    padding:10px 14px 10px 34px;
+    border:1px solid var(--line);
+    border-radius:3px;
+    background:var(--paper-raised);
+    font-family:'Inter',sans-serif;
+    font-size:13.5px;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .search-box input:focus{border-color:var(--amber);}
+  .search-box svg{
+    position:absolute;
+    left:10px;
+    top:50%;
+    transform:translateY(-50%);
+    width:15px;
+    height:15px;
+    stroke:var(--slate);
+  }
+  .filter-heading{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--slate);
+    margin:0 0 10px;
+  }
+  .cat-list{
+    list-style:none;
+    margin:0 0 26px;
+    padding:0;
+    border-left:1px solid var(--line-soft);
+  }
+  .cat-list li{
+    font-size:13px;
+    color:var(--ink-soft);
+    padding:6px 0 6px 14px;
+    cursor:pointer;
+    border-left:2px solid transparent;
+    margin-left:-1px;
+    line-height:1.35;
+    transition:color .12s ease, border-color .12s ease;
+  }
+  .cat-list li:hover{color:var(--ink);}
+  .cat-list li.active{
+    color:var(--ink);
+    border-left-color:var(--amber);
+    font-weight:600;
+  }
+  .cat-count{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--slate);
+    font-size:11px;
+    margin-left:4px;
+  }
+  .reset-link{
+    font-size:12px;
+    color:var(--amber);
+    cursor:pointer;
+    text-decoration:none;
+    border-bottom:1px dotted var(--amber);
+    display:inline-block;
+    margin-bottom:24px;
+  }
+
+  /* ---------- Results ---------- */
+  .results-meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--slate);
+    margin-bottom:14px;
+    letter-spacing:.02em;
+  }
+  .results-meta span{color:var(--ink);font-weight:600;}
+
+  .card{
+    background:var(--paper-raised);
+    border:1px solid var(--line);
+    border-left-width:4px;
+    border-radius:2px;
+    padding:16px 20px 18px;
+    margin-bottom:12px;
+    cursor:pointer;
+  }
+  .card.s-y{border-left-color:var(--moss);}
+  .card.s-partial{border-left-color:var(--amber);}
+  .card.s-n{border-left-color:var(--brick);}
+  .card.s-unknown{border-left-color:var(--stone);}
+  .card.s-na{border-left-color:var(--line);}
+
+  .card-top{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:14px;
+  }
+  .card-meta{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:7px;
+    flex-wrap:wrap;
+  }
+  .ref-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--slate);
+    background:var(--stone-bg);
+    padding:2px 7px;
+    border-radius:2px;
+    white-space:nowrap;
+  }
+  .cat-tag{
+    font-size:10.5px;
+    color:var(--slate);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+  }
+  .status-pill{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    font-weight:600;
+    padding:2px 9px;
+    border-radius:20px;
+    white-space:nowrap;
+    letter-spacing:.03em;
+  }
+  .status-pill.s-y{background:var(--moss-bg);color:var(--moss);}
+  .status-pill.s-partial{background:var(--amber-bg);color:var(--amber);}
+  .status-pill.s-n{background:var(--brick-bg);color:var(--brick);}
+  .status-pill.s-unknown{background:var(--stone-bg);color:var(--stone);}
+  .status-pill.s-na{background:var(--line-soft);color:var(--slate);}
+
+  .card-q{
+    font-family:'Zilla Slab',serif;
+    font-size:16.5px;
+    font-weight:600;
+    line-height:1.35;
+    color:var(--ink);
+    margin:0 0 4px;
+  }
+  .req-type{
+    font-size:11px;
+    color:var(--slate);
+    font-style:italic;
+  }
+
+  .card-a{
+    font-size:13.8px;
+    line-height:1.6;
+    color:var(--ink-soft);
+    margin-top:10px;
+    padding-top:10px;
+    border-top:1px solid var(--line-soft);
+    display:block;
+  }
+  .card.collapsed .card-a{display:none;}
+  .chevron{
+    flex-shrink:0;
+    width:16px;
+    height:16px;
+    stroke:var(--slate);
+    transition:transform .15s ease;
+    margin-top:3px;
+    cursor:pointer;
+  }
+  .card.collapsed .chevron{transform:rotate(-90deg);}
+  .view-toggle{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--amber);
+    cursor:pointer;
+    text-decoration:none;
+    border-bottom:1px dotted var(--amber);
+    margin-left:14px;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--slate);
+  }
+  .empty-state .big{
+    font-family:'Zilla Slab',serif;
+    font-size:20px;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+
+  mark{
+    background:var(--amber-bg);
+    color:var(--ink);
+    padding:0 2px;
+    border-radius:2px;
+  }
+
+  footer{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 32px 40px;
+    font-size:11.5px;
+    color:var(--slate);
+    border-top:1px solid var(--line);
+    padding-top:16px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <p class="eyebrow">Internal Reference &middot; DPSCD RFP 27-0011</p>
+      <h1>KCC / KCIM Compliance Knowledge Base</h1>
+      <p class="subtitle">Searchable answers on where Kyocera Cloud Capture and Kyocera Cloud Information Manager meet — or don't meet — the District's Electronic Document Workflow System requirements.</p>
+    </div>
+    <div class="stat-strip" id="statStrip"></div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="Search requirements or answers…" autocomplete="off">
+    </div>
+    <a class="reset-link" id="resetLink">Clear all filters</a>
+    <p class="filter-heading">By category</p>
+    <ul class="cat-list" id="catList"></ul>
+  </aside>
+
+  <main>
+    <p class="results-meta" id="resultsMeta"><span class="view-toggle" id="viewToggle">Collapse all</span></p>
+    <div id="cardContainer"></div>
+  </main>
+</div>
+
+<footer>
+  Compiled from KCIM Customer Admin/User Guides and Customer Portal Admin/User Guides. Items marked Unknown reflect gaps in the reviewed product documentation, not confirmed product limitations — verify with the KCC/KCIM product team before finalizing proposal language.
+</footer>
+
+<script>
+const DATA = [{"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Ability to fully digitize paper-based workflows, including forms, approvals, routing, and notifications.", "type": "Should", "status": "Partial", "a": "KCIM digitizes the back end of a workflow well: documents are uploaded/scanned, indexed with metadata, routed through single-task or multi-step task-sequence approvals, and trigger email notifications at each stage. What KCIM does not provide is a true online \"fill-in-the-blank\" web form for a requester to complete from scratch \u2014 the process starts from an uploaded document (e.g., a PDF) that is then indexed, rather than a dynamically rendered form. For a process like Field Trip Request, this means the District (or KCC) would need to supply a fillable PDF/Word template that KCC/KCIM then captures, indexes, and routes."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Drag-and-drop or similarly intuitive form and workflow builder requiring no coding expertise.", "type": "Should", "status": "Partial", "a": "No-code administration exists for KCIM (document classes, attributes, permissions, task sequences are all configured through the web UI without coding), and Kyocera Cloud Capture (KCC) provides the scan/capture-side configuration. However, this is closer to a schema/attribute and task-list configuration tool than a visual drag-and-drop canvas form/workflow designer. Confirm current KCC capture-template design experience with the KCC product team, as it is not detailed in the KCIM/Customer Portal guides reviewed."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Conditional logic support within forms and workflows, including if/then/else rules.", "type": "Should", "status": "N", "a": "Not found in the reviewed KCIM/Customer Portal documentation. Task sequences are ordered lists of recipients (sequential, or all-at-once via a single task assigned to multiple people) rather than branching if/then/else logic. Verify with the KCC product team whether the capture/classification engine supports conditional routing rules."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Reusable workflow and form templates.", "type": "Should", "status": "Y", "a": "KCIM supports reusable Task sequence templates (personal or shared org-wide) and reusable E-signature templates for recipients who are requested repeatedly. Document classes/attributes act as reusable \"form\" schemas for indexing."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Version control to track form and workflow revisions over time.", "type": "Should", "status": "Partial", "a": "Document version control is well supported: KCIM keeps a full version history (Add file as new version, Compare versions, document History timeline). Version control specifically for the workflow/task-sequence definitions or document-class schema changes themselves is not documented."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Ability to integrate with and convert existing PDF forms.", "type": "Should", "status": "Partial", "a": "Existing PDF documents can be uploaded, OCR'd (up to 8 languages), and indexed in KCIM, and KCC handles PDF/scan capture from MFPs, desktop, and mobile. True conversion of a static PDF into an interactive fillable web form is not documented as a KCIM feature."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Support for electronic signatures and digital certifications.", "type": "Should", "status": "Y", "a": "KCIM integrates with a third-party e-signature service (activated/configured by an administrator). Supports single or multi-signer (up to 6 signers) requests, signer order, Anchor Strings for signature placement, signature templates, and status tracking (in progress/signed/declined/expired/cancelled). Signers do not need a KCIM account. Limited to a single PDF or .docx per request, up to 32 MB."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Ability to pre-populate form fields prior to distribution.", "type": "Should", "status": "Partial", "a": "\"Click indexing\" lets a user auto-populate index fields by clicking data directly in the document preview, and the Signers list can be pre-populated from a document class attribute at indexing time. Pre-populating a blank form before it is distributed to a requester is not documented."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Built-in calculations, including calculations for mileage reimbursements, budget codes, conference costs, and similar business processes.", "type": "Should", "status": "N", "a": "No calculation/formula engine for document class attributes is documented in the reviewed guides. Any mileage, budget-code, or cost calculations would need to be done outside KCIM (e.g., in an uploaded Excel document, editable in-browser via the Microsoft 365 integration) prior to indexing."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Ability for one user to submit a form on behalf of another user, such as an assistant submitting a request on behalf of a supervisor.", "type": "Should", "status": "Unknown", "a": "Not explicitly documented. Tasks can be assigned/forwarded to other users and a user can \"Assign to me,\" but a formal delegated-submission capability (e.g., an assistant filing on a supervisor's behalf, attributed to the supervisor) is not described in the reviewed guides. Confirm with the KCC/KCIM product team."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Support for attaching additional files to form submissions.", "type": "Should", "status": "Y", "a": "Task creation includes an \"Add attachments\" option, and KCIM documents/folders generally support multiple related files and versions."}, {"cat": "1.1 Form and Workflow Builder", "ref": "Sec C 1.1", "q": "Ability to download completed forms as PDF files for use on other platforms.", "type": "Should", "status": "Y", "a": "Documents can be downloaded at any time (subject to permissions). Signed documents are returned to KCIM as PDFs; Word/Excel/PowerPoint files can be viewed/edited and downloaded in their native or PDF formats."}, {"cat": "1.2 Routing and Approvals", "ref": "Sec C 1.2", "q": "Automated routing based on user roles, departments, and form data.", "type": "Should", "status": "Partial", "a": "Document visibility is automatically governed by role/permission-based document-class and folder permissions (read/write/delete by user or group). However, routing of an individual task to a specific approver is a manual step (the task creator searches for and selects a named recipient) rather than a rules engine that auto-routes based on form-field values."}, {"cat": "1.2 Routing and Approvals", "ref": "Sec C 1.2", "q": "Multi-level approval sequences with configurable routing logic.", "type": "Should", "status": "Y", "a": "KCIM's \"Task sequence\" feature supports multi-recipient, ordered approval chains with per-task notes, due dates, and the ability to insert a recipient between two existing steps. Recipients pass the task to the next person in the sequence."}, {"cat": "1.2 Routing and Approvals", "ref": "Sec C 1.2", "q": "Role-based and department-based routing.", "type": "Should", "status": "Partial", "a": "Permissions (who can see/act on a document) are role- and group-based, but automatic assignment of an approval task to \"whoever holds a role\" or \"whoever is in a department\" is not documented \u2014 recipients are selected individually by name when a task or task sequence is created."}, {"cat": "1.2 Routing and Approvals", "ref": "Sec C 1.2", "q": "Time-based escalation workflows for overdue tasks.", "type": "Should", "status": "Partial", "a": "Overdue tasks are clearly flagged (red due date/border) and generate configurable reminder emails at a defined frequency after the due date passes. True escalation \u2014 automatically reassigning or elevating an overdue task to a manager/backup approver \u2014 is not documented; overdue reminders continue to go to the same assignee (and optionally the initiator)."}, {"cat": "1.2 Routing and Approvals", "ref": "Sec C 1.2", "q": "Bulk upload and batch processing capabilities.", "type": "Should", "status": "Y", "a": "KCIM supports bulk indexing: multiple documents can be indexed together into a common target folder with shared attribute values, with an option to flag them for validation."}, {"cat": "1.3 Notifications and Communication", "ref": "Sec C 1.3", "q": "Automated notifications and reminders for incomplete, pending, or overdue tasks.", "type": "Should", "status": "Y", "a": "A full system-email framework is documented: task assigned, due date approaching (configurable lead time), due date reached, overdue (configurable recurring frequency), task completed, task/process deleted \u2014 sent to the assignee and, optionally, the initiator."}, {"cat": "1.3 Notifications and Communication", "ref": "Sec C 1.3", "q": "Configurable notification preferences by user and role.", "type": "Should", "status": "Partial", "a": "Administrators set org-wide default notification behavior (recipients, reminder cadence) on the Settings > Notifications pane, and the person creating a task/task sequence can override those defaults per task. Fully self-service, per-user/per-role notification preference management (independent of the task creator) is not documented."}, {"cat": "1.3 Notifications and Communication", "ref": "Sec C 1.3", "q": "Alerts for document updates, submissions, and approvals.", "type": "Should", "status": "Y", "a": "Notifications cover document/task lifecycle events (assignment, completion, deletion) and, separately, signature status changes and retention/validation requests are visible via status icons and the Dashboard tasks area."}, {"cat": "2.1 Identity and Access", "ref": "Sec C 2.1", "q": "Single Sign-On (SSO) through Microsoft Entra ID (Azure AD) required for all District staff, administrators, teachers, and student accounts, where applicable.", "type": "REQUIRED", "status": "Y", "a": "Microsoft Entra ID authentication is a native, documented feature of the Customer Portal (which KCC/KCIM run on). Administrators import specific Entra ID security/Microsoft 365 groups; members can then sign in with \"Sign in with Microsoft.\" Note: the Customer Portal currently caps Entra ID-authenticated users at 1,000 per organization \u2014 this should be confirmed/raised with the product team given DPSCD's ~50,000-student, multi-thousand-staff scale, especially for Scope 2."}, {"cat": "2.1 Identity and Access", "ref": "Sec C 2.1", "q": "All District staff must authenticate through the District tenant; solution must be capable of capturing applicable staff metadata.", "type": "REQUIRED", "status": "Y", "a": "Users authenticate against the District's own Entra ID tenant (admin consent flow). Username, first/last name, and email are synced from Entra ID; updates in Entra ID sync to the Customer Portal on the next manual or automatic sync."}, {"cat": "2.1 Identity and Access", "ref": "Sec C 2.1", "q": "Support external user access (vendors, contractors, parents, guardians, community members) without requiring membership in the District's Microsoft Entra ID tenant.", "type": "Should", "status": "Y", "a": "The Customer Portal sign-in page supports both Entra ID sign-in and local (non-tenant) Customer Portal accounts side by side. In addition, e-signature requests can be sent to any named external signer by email without requiring them to have any KCC/KCIM/Customer Portal account at all."}, {"cat": "2.1 Identity and Access", "ref": "Sec C 2.1", "q": "Provide an alternate authentication mechanism (e.g., local application accounts tied to a business/personal email) so submissions, approvals, status updates, and system communications go to/from that email address.", "type": "Should", "status": "Y", "a": "Local Customer Portal accounts are username/password based (optionally with multi-factor authentication via authenticator app or one-time email code) and are tied to the user's email address, which receives all task, notification, and password-reset communications."}, {"cat": "2.2 Hosting", "ref": "Sec C 2.2", "q": "Cloud-hosted Software-as-a-Service (SaaS) solution is the District's preferred model.", "type": "Preferred", "status": "Y", "a": "KCC and KCIM are delivered as cloud-based SaaS applications on Kyocera's multi-tenant Digital Cloud Platform (DCP), launched from the Customer Portal. No on-premises deployment of KCC/KCIM is described in the reviewed documentation."}, {"cat": "2.2 Hosting", "ref": "Sec C 2.2", "q": "On-premises or hybrid deployment models will be considered only as exceptions and must be justified in the proposal.", "type": "Conditional", "status": "N/A", "a": "Not applicable \u2014 KCC/KCIM are cloud-SaaS only; no on-premises or hybrid option is offered, so no exception/justification is needed."}, {"cat": "2.3 APIs and Integrations", "ref": "Sec C 2.3", "q": "API availability for custom integrations with District systems, including SIS, financial platforms, LMS, and other administrative applications.", "type": "Should", "status": "Unknown", "a": "No API reference or integration guide was found in the KCIM/Customer Portal Admin/User Guides reviewed. Confirm current API availability, authentication method, and rate limits directly with the KCC/KCIM product/engineering team before responding definitively."}, {"cat": "2.3 APIs and Integrations", "ref": "Sec C 2.3", "q": "Support for multiple file formats, including PDF, Word (.docx), Excel (.xlsx), PowerPoint (.pptx), and other commonly used formats.", "type": "Should", "status": "Y", "a": "PDF, Word, Excel, and PowerPoint are natively viewable and (via Microsoft 365 integration) editable in-browser within KCIM. Other formats such as images, .eml email files (under 30 MB), and .xml are also viewable; unsupported formats fall back to a download link."}, {"cat": "2.3 APIs and Integrations", "ref": "Sec C 2.3", "q": "CSV and XML data export and import support.", "type": "Should", "status": "Partial", "a": ".xml files are viewable (with special formatted display for ZUGFeRD e-invoice XML). General-purpose CSV/XML import or export for bulk data exchange with District systems is not documented \u2014 confirm with the product team."}, {"cat": "2.3 APIs and Integrations", "ref": "Sec C 2.3", "q": "Describe any pre-built integrations available for commonly used K-12 platforms.", "type": "Must Describe", "status": "Unknown", "a": "No K-12-specific (SIS/LMS) integrations are documented in the KCIM/Customer Portal guides reviewed. Confirm with the KCC/KCIM product team whether any exist or are on the roadmap."}, {"cat": "2.3 APIs and Integrations", "ref": "Sec C 2.3", "q": "Optional: describe available PowerSchool or other SIS integration capabilities.", "type": "Optional", "status": "N", "a": "No PowerSchool or other SIS integration is documented in the materials reviewed."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Full compliance with the Family Educational Rights and Privacy Act (FERPA).", "type": "REQUIRED", "status": "Unknown", "a": "Not addressed in the KCIM/Customer Portal Admin/User Guides, which are functional/operational documentation rather than compliance documentation. This is a common requirement Kyocera should be able to speak to contractually \u2014 request FERPA compliance documentation and willingness to sign a Data Privacy Agreement from the Kyocera legal/compliance team."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "HIPAA compliance where applicable.", "type": "REQUIRED", "status": "Unknown", "a": "Not addressed in the reviewed product documentation. Request from Kyocera legal/compliance."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Data encryption at rest and in transit.", "type": "REQUIRED", "status": "Unknown", "a": "Not specified in the reviewed guides (no encryption standards, e.g., AES-256/TLS version, are documented). Request current specifications from the KCC/KCIM security/product team."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Granular permissions management by user, role, and department.", "type": "REQUIRED", "status": "Y", "a": "KCIM provides two layers of granular permissions: Document class permissions (Read/Write/Delete per document class, assignable by user or group) and Folder permissions (Read/Write/Delete per root folder and its contents, assignable by user), with \"Personal rights\" vs. \"Effective rights\" (combined with group membership) visible per user."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Logical separation of data access between departments, schools, and business units, enforced through role-based and attribute-based access controls.", "type": "REQUIRED", "status": "Partial", "a": "The document-class + folder permission model can be configured to separate access by group/organizational unit (e.g., by school or department), but this depends on how the District structures its document classes, folders, and Entra ID/Customer Portal groups \u2014 it is a configurable capability rather than an out-of-the-box automatic separation."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Secure and detailed audit trails for all user and administrative activity, with audit log reporting available for compliance review.", "type": "REQUIRED", "status": "Partial", "a": "Every document and folder has a History tab showing a timeline of actions (uploads, edits, indexing, retention, signature, comments) with date/filter options. A consolidated, exportable, organization-wide audit log/report (separate from per-document history) is not documented \u2014 confirm with the product team."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Application and infrastructure threat monitoring: WAF protection, anomaly detection on authentication/API activity, vulnerability management, and documented incident response process with defined customer notification timelines.", "type": "REQUIRED", "status": "Unknown", "a": "Not addressed in the functional documentation reviewed. This is infrastructure/security-program information that should come from Kyocera's security or trust/compliance team, not the product guides."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Ability to forward security, authentication, and audit logs to the District's SIEM platform (syslog, HTTPS event streaming, Microsoft Sentinel connectors, or equivalent).", "type": "REQUIRED", "status": "Unknown", "a": "No SIEM export/log-forwarding capability is documented in the reviewed guides. Confirm with the product/engineering team."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Documented event schemas, supported event types, and ingestion frequencies suitable for near real-time monitoring and compliance review.", "type": "Must Describe", "status": "Unknown", "a": "Not documented in the materials reviewed."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Regular third-party security audits; provide most recent applicable results.", "type": "REQUIRED", "status": "Unknown", "a": "Not addressed in the product guides. Request current audit reports/attestations from Kyocera."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Data center certification through SOC 2 Type II and/or ISO 27001; list any additional applicable certifications.", "type": "REQUIRED", "status": "Unknown", "a": "Not documented in the KCIM/Customer Portal guides reviewed. Request current certification status/reports from Kyocera."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "United States-based data hosting with strict security protocols.", "type": "REQUIRED", "status": "Unknown", "a": "Hosting region/data-residency is not stated in the functional documentation reviewed. Confirm with the product/hosting team."}, {"cat": "3. Data Security and Privacy", "ref": "Sec C 3", "q": "Willingness to execute a Data Privacy Agreement / Student Data Privacy Consortium (SDPC) Michigan NDPA or District-approved equivalent.", "type": "REQUIRED", "status": "Unknown", "a": "This is a legal/contractual commitment for Kyocera's contracts team, not something addressed in the product documentation reviewed."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "Automated data backups: at minimum daily incremental and weekly full; describe retention periods, verification procedures, and additional frequencies offered.", "type": "REQUIRED", "status": "Unknown", "a": "Platform-level backup schedule/frequency is not documented in the KCIM/Customer Portal guides reviewed (these describe application-level Retention Management, not infrastructure backups). Confirm with the hosting/infrastructure team."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "All backup, DR, and archived data encrypted at rest and in transit (e.g., AES-256 at rest, TLS 1.2+ in transit) with documented key management practices.", "type": "REQUIRED", "status": "Unknown", "a": "Not documented in the reviewed guides."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "Documented disaster recovery and business continuity plans.", "type": "REQUIRED", "status": "Unknown", "a": "Not documented in the reviewed guides; request from Kyocera's infrastructure/security team."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "All backups, DR copies, and archived data stored within United States-based data centers.", "type": "REQUIRED", "status": "Unknown", "a": "Not stated in the reviewed documentation."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "Archive and restore functionality.", "type": "REQUIRED", "status": "Partial", "a": "KCIM's Retention Management feature lets users tag documents for retention/archiving with a defined retention period, extend the retention date, and remove documents once expired \u2014 this is application-level archiving of individual documents, not a full system backup/restore capability."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "Clearly described historical data retention policies.", "type": "Must Describe", "status": "Partial", "a": "Document-level retention periods are administrator/Retention-Manager configurable per the District's own policy. Platform-level data retention (e.g., how long deleted items or superseded versions are recoverable) is not documented."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "Ability to export and archive District data upon contract expiration or termination.", "type": "REQUIRED", "status": "Unknown", "a": "Not documented for KCC/KCIM specifically. The reviewed materials note only that on subscription cancellation, all documents and the org's portal are deleted on the last day of the billing cycle \u2014 confirm export/transition procedures with the contracts/product team before the account is closed."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "Describe Recovery Point Objective (RPO) and Recovery Time Objective (RTO).", "type": "Must Describe", "status": "Unknown", "a": "Not documented in the reviewed guides."}, {"cat": "4. Backup, Recovery, and Archiving", "ref": "Sec C 4", "q": "Describe procedures/timelines for returning District data and securely deleting remaining District data following contract expiration/termination.", "type": "Must Describe", "status": "Partial", "a": "The only documented data-deletion trigger is subscription cancellation, which deletes all organization documents and the portal on the last day of the billing cycle. Formal data-return procedures and secure-deletion certification/timelines are not documented \u2014 obtain from Kyocera's contracts team."}, {"cat": "5. Document Management and Search", "ref": "Sec C 5", "q": "Centralized document repository for all forms, submissions, attachments, and supporting files.", "type": "Should", "status": "Y", "a": "KCIM's Folders area is a centralized repository for all uploaded/indexed documents, organized into folders and subfolders."}, {"cat": "5. Document Management and Search", "ref": "Sec C 5", "q": "Upload, download, view, edit, delete, and archive capabilities for all documents, subject to applicable user permissions and retention requirements.", "type": "Should", "status": "Y", "a": "All of these actions are documented and permission-gated: upload (web, mobile app, MFP scan-to-cloud, fax forwarding), download, in-browser view/edit (including Microsoft 365 documents), delete, and archive via Retention Management."}, {"cat": "5. Document Management and Search", "ref": "Sec C 5", "q": "Metadata tagging for documents to support classification, organization, and retrieval.", "type": "Should", "status": "Y", "a": "Document classes and configurable attributes (text, date, Boolean/checkbox, Signers list, etc.) are used to index and classify every document, and can be localized and grouped into search groups."}, {"cat": "5. Document Management and Search", "ref": "Sec C 5", "q": "Full-text search across forms, attachments, and supporting documents.", "type": "Should", "status": "Y", "a": "The Search bar searches entered terms across all document class types, indexed OCR content, and metadata, within the folders/documents the user has permission to access."}, {"cat": "5. Document Management and Search", "ref": "Sec C 5", "q": "Advanced search filters by user, date, department, status, and document type.", "type": "Should", "status": "Partial", "a": "Advanced filtering is documented for document class, created-by, date, and status (archiving/retention, signature, validation), with AND/OR logic. An explicit \"department\" filter is not called out, though folder structure and document-class search groups can be used to approximate department-based filtering."}, {"cat": "5. Document Management and Search", "ref": "Sec C 5", "q": "Describe how document editing functions operate, including any limitations on editing form submissions, document metadata, uploaded files, or document versions.", "type": "Must Describe", "status": "Y", "a": "Well documented: Microsoft 365 (Word/Excel/PowerPoint) documents can be viewed/edited in-browser, with limits including a 25 MB file-size cap for edit, no editing of password-protected or retention-locked files, macros preserved but not executable, legacy formats (.doc) requiring conversion, and edits saved as a new document version (adding to, not replacing, storage usage). PDFs and other formats use a standard, non-editable viewer."}, {"cat": "6. Reporting and Analytics", "ref": "Sec C 6", "q": "Real-time dashboards for administrators and approvers.", "type": "Should", "status": "Partial", "a": "The KCIM Dashboard is role-aware and shows subscription/storage status, assigned tasks (My tasks, task sequences, finished tasks, signing, validation), and documents awaiting indexing in real time. It is an operational task dashboard, not a KPI/analytics dashboard."}, {"cat": "6. Reporting and Analytics", "ref": "Sec C 6", "q": "Custom reporting tools configurable by user role.", "type": "Should", "status": "N", "a": "No custom report builder is documented in the reviewed guides."}, {"cat": "6. Reporting and Analytics", "ref": "Sec C 6", "q": "Exportable reports in CSV, Excel, and PDF formats.", "type": "Should", "status": "N", "a": "No dedicated report-export feature is documented; individual documents can be downloaded, but that is distinct from generating and exporting formal reports."}, {"cat": "6. Reporting and Analytics", "ref": "Sec C 6", "q": "Analytics on workflow efficiency, including time to completion, bottleneck identification, and submission volumes.", "type": "Should", "status": "N", "a": "Not documented as a KCIM feature."}, {"cat": "6. Reporting and Analytics", "ref": "Sec C 6", "q": "Audit log reports for administrative compliance review.", "type": "Should", "status": "Partial", "a": "Per-document/folder History provides a filterable activity timeline, but a consolidated, exportable audit-log report across the organization is not documented."}, {"cat": "6. Reporting and Analytics", "ref": "Sec C 6", "q": "Historical data archiving and retrieval for reporting purposes.", "type": "Should", "status": "Partial", "a": "Retention Management and Search let users locate and retrieve archived/retained documents, but this is document retrieval rather than a reporting/analytics capability."}, {"cat": "7. User Experience and Accessibility", "ref": "Sec C 7", "q": "A modern, clean, and intuitive user interface.", "type": "REQUIRED", "status": "Y", "a": "The KCIM Dashboard/Folders/Search UI is web-based with configurable dark/light mode and accent color; layout is organized around a navigation pane, search bar, and task/document panes."}, {"cat": "7. User Experience and Accessibility", "ref": "Sec C 7", "q": "WCAG 2.1 AA accessibility compliance or higher.", "type": "REQUIRED", "status": "Unknown", "a": "No accessibility conformance statement (e.g., VPAT) is included in the reviewed documentation. Request current WCAG conformance documentation from the KCC/KCIM product team."}, {"cat": "7. User Experience and Accessibility", "ref": "Sec C 7", "q": "Mobile-responsive and browser-agnostic design that supports Chromebooks, tablets, and mobile devices.", "type": "REQUIRED", "status": "Partial", "a": "The KCIM web portal officially supports the latest Safari, Chrome, and Edge (which covers Chromebooks running Chrome), and a dedicated KCIM mobile app exists for iOS 14+/Android 10+ for capture. Full responsive-design behavior of the web portal itself on small tablet/phone screens (beyond the purpose-built capture app) is not explicitly documented \u2014 confirm with the product team."}, {"cat": "7. User Experience and Accessibility", "ref": "Sec C 7", "q": "Fillable forms accessible without requiring users to download software or an application.", "type": "REQUIRED", "status": "Partial", "a": "Documents can be viewed and, for Microsoft 365 file types, edited entirely in-browser without installing desktop software; the KCIM/KCC mobile apps are optional add-ons for capture, not required. However, as noted in 1.1, KCIM does not provide a dynamic, browser-rendered \"fill this form out from scratch\" experience \u2014 it works from uploaded documents."}, {"cat": "7. User Experience and Accessibility", "ref": "Sec C 7", "q": "Support for multiple user roles, including Administrator, Submitter, Approver, Observer, Teacher, Student, and Parent/Guardian.", "type": "REQUIRED", "status": "Partial", "a": "Native roles are Organization representative, Administrator, User, and (within KCIM) Retention Manager, plus task-based Assignee/Initiator relationships that functionally cover \"submitter\" and \"approver.\" External participants (e.g., parents/guardians) can be included as e-signature recipients without any account. Dedicated \"Teacher,\" \"Student,\" and \"Observer\" role labels are not documented \u2014 these would need to be modeled using the existing User role plus permissions/groups."}, {"cat": "7. User Experience and Accessibility", "ref": "Sec C 7", "q": "Role-based dashboards, task queues, and access controls tailored to each role.", "type": "REQUIRED", "status": "Y", "a": "The Dashboard's Tasks area (My tasks, Task sequences, Finished tasks, Signing, Validate tabs) is populated based on each user's assigned tasks and permissions; document class and folder permissions further tailor what each user/group can see and do."}, {"cat": "7. User Experience and Accessibility", "ref": "Sec C 7", "q": "Ability to support unlimited District users.", "type": "REQUIRED", "status": "N", "a": "The Customer Portal documentation states a hard cap of 1,000 users per organization when using Microsoft Entra ID authentication (\"If you attempt to import users that would exceed this limit, an error message appears\"). This is a material gap against the District's requirement for unlimited users and DPSCD's scale (~50,000 students, thousands of staff) and should be raised directly with the KCC/KCIM product team to confirm whether this limit can be raised or removed for an enterprise K-12 deployment."}, {"cat": "8. Implementation and Onboarding", "ref": "Sec C 8", "q": "Provide a detailed project management plan and proposed implementation timeline for both Scope 1 (POC) and Scope 2 (District-Wide Deployment).", "type": "REQUIRED", "status": "N/A", "a": "Not a product feature \u2014 this is a proposal deliverable to be authored by the implementation/professional-services team, not answered from KCC/KCIM product documentation."}, {"cat": "8. Implementation and Onboarding", "ref": "Sec C 8", "q": "Implementation plan must describe approach and identify key activities, milestones, supplier responsibilities, District responsibilities, testing activities, training activities, and proposed implementation timelines.", "type": "REQUIRED", "status": "N/A", "a": "Proposal-writing task for the implementation team."}, {"cat": "8. Implementation and Onboarding", "ref": "Sec C 8", "q": "Describe recommended implementation approach (train-the-trainer, turnkey, or other methodology).", "type": "Must Describe", "status": "N/A", "a": "Proposal-writing task for the implementation/training team."}, {"cat": "8. Implementation and Onboarding", "ref": "Sec C 8", "q": "Clearly identify which implementation activities/services are included in the proposed price vs. which require additional fees.", "type": "REQUIRED", "status": "N/A", "a": "Pricing/commercial task, not a product-documentation item."}, {"cat": "9. Training (Admin / End-User / Advanced / Ongoing)", "ref": "Sec C 9 / 9.1-9.4", "q": "Training offered in three distinct tiers (Admin, End-User, Advanced), each with virtual, in-person, and on-demand delivery options; ongoing refresher training and learning resources throughout the contract term.", "type": "REQUIRED", "status": "Partial", "a": "Kyocera maintains detailed, role-oriented documentation that supports training content: a Customer Portal Admin Guide, a KCIM Customer Admin Guide (SSO/Entra ID config, permissions, retention, e-signature, SIEM-adjacent settings would need confirming), and separate KCIM/Customer Portal User Guides covering day-to-day use (folders, search, tasks, mobile app, MFP scanning). This documentation is a strong foundation for End-User and Administrative training content. Whether Kyocera/the reseller formally packages this into three delivery tiers (virtual/in-person/on-demand) with dedicated \"Advanced\" content (API use, advanced reporting, etc.) is a services/delivery commitment for the training or professional-services team to confirm, not something stated in the product guides themselves."}, {"cat": "10. Sandbox / Evaluation Environment", "ref": "Sec C 10", "q": "Provide access to a sandbox or evaluation environment for designated DPSCD staff during the evaluation process, and describe its type, duration, limitations, user count, assistance provided, and any cost.", "type": "REQUIRED", "status": "Unknown", "a": "Not addressed in the KCIM/Customer Portal product documentation reviewed \u2014 this is typically arranged by the local Kyocera dealer/reseller as part of the sales process. Confirm current trial/sandbox offerings with the KCC/KCIM sales team."}, {"cat": "11. Ongoing Support", "ref": "Sec C 11", "q": "Provide ongoing technical/customer support, including a dedicated account manager, defined SLAs, support hours of at least 8:00 a.m.\u20134:30 p.m. ET Mon\u2013Fri, emergency/after-hours protocols, an in-product Help Center, continuous upgrades at no added cost, and regular release/maintenance communications.", "type": "REQUIRED", "status": "Unknown", "a": "Support program details (SLAs, account management, hours, escalation) are not documented in the KCIM/Customer Portal functional guides reviewed; the guides do reference contacting \"your KCIM/Customer Portal dealer\" for account and setup issues, and Kyocera maintains a regional sales/support contact directory. An in-app Information icon does provide access to product guides/tooltips. Obtain the formal support-plan/SLA documentation from the Kyocera sales/support organization for a complete response."}, {"cat": "12. Pricing Requirements", "ref": "Sec C 12", "q": "Submit separate/complete pricing for Scope 1 and Scope 2; disclose all one-time, recurring, optional, transactional, and usage-based costs and any limitations/thresholds tied to users, forms, workflows, submissions, transactions, documents, storage, API calls, or environments; document all pricing assumptions.", "type": "REQUIRED", "status": "N/A", "a": "Commercial/pricing task for the sales team, using Attachment A. Two usage-based mechanics found in the product documentation that should be reflected transparently in pricing: (1) KCIM subscription plans are storage/data-limit based, with a documented \"Peak usage\" overage charge if an organization exceeds its plan's data limit during a billing cycle, and free-plan uploads are blocked entirely at 100% of quota; (2) Microsoft Entra ID-authenticated users are capped at 1,000 per organization. Both should be explicitly addressed given the District's stated intent to support unlimited forms, workflows, and users."}, {"cat": "Scope 1 - Proof of Concept (Field Trip Request)", "ref": "Sec C - Scope 1", "q": "Digitize the District's Field Trip Request process as the initial proof-of-concept implementation, working with District staff to configure forms, approvals, routing, notifications, and supporting documentation.", "type": "REQUIRED", "status": "Partial", "a": "Achievable using KCIM: a Field Trip Request document class/attribute set can be defined for indexing, a multi-step Task sequence can route the request through the required approvers, supporting documents can be attached, and email notifications keep everyone informed. The main gap is the lack of a true dynamic web form for the initial request \u2014 requesters would fill out a Word/PDF template (or a fillable PDF) and upload it for indexing rather than completing an online form, which should be clearly scoped and demonstrated during the POC."}, {"cat": "Scope 1 - Proof of Concept (Field Trip Request)", "ref": "Sec C - Scope 1", "q": "Provide a proposed implementation plan/schedule for Scope 1 (key activities, milestones, responsibilities, testing, training, anticipated production deployment date).", "type": "REQUIRED", "status": "N/A", "a": "Proposal-writing task for the implementation team, not a product-documentation item."}, {"cat": "Scope 2 - District-Wide Deployment", "ref": "Sec C - Scope 2", "q": "Provide the ability to digitize/manage an unlimited number of forms and workflow processes and support an unlimited number of District users.", "type": "REQUIRED", "status": "N", "a": "Unlimited forms/workflows: document classes/attributes and task sequences can, in principle, be created without a documented hard limit. Unlimited users: contradicted by the documented 1,000-user cap for Microsoft Entra ID authentication in the Customer Portal, and by storage-based subscription tiers with overage billing. This should be resolved with the KCC/KCIM product team (e.g., an enterprise/district-wide licensing tier) before committing to this requirement in the proposal."}, {"cat": "Scope 2 - District-Wide Deployment", "ref": "Sec C - Scope 2", "q": "Enable authorized District administrators, power users, form designers, workflow owners, and departmental process leads to create, configure, modify, test, deploy, and maintain forms and workflows without requiring ongoing supplier design services for routine development.", "type": "REQUIRED", "status": "Partial", "a": "Administrators can self-service configure document classes/attributes, permissions, task-sequence templates, e-signature templates, and OCR/localization settings through the web UI without coding or Kyocera involvement. Because KCIM's \"form\" is fundamentally a document-indexing schema rather than a true dynamic form/workflow designer, District staff would be maintaining indexing templates and approval chains rather than building rich interactive forms with conditional logic and calculations \u2014 set expectations accordingly."}];
+
+const STATUS_LABEL = {Y:'YES', Partial:'PARTIAL', N:'NO', Unknown:'UNKNOWN', 'N/A':'N/A'};
+const STATUS_CLASS = {Y:'s-y', Partial:'s-partial', N:'s-n', Unknown:'s-unknown', 'N/A':'s-na'};
+
+let state = { search:'', cat:null, status:null, allCollapsed:false };
+
+function uniqueCats(){
+  const seen = [];
+  DATA.forEach(d=>{ if(!seen.includes(d.cat)) seen.push(d.cat); });
+  return seen;
+}
+
+function countByStatus(status){
+  if(status==='ALL') return DATA.length;
+  return DATA.filter(d=>d.status===status).length;
+}
+
+function renderStats(){
+  const strip = document.getElementById('statStrip');
+  const defs = [
+    {key:'ALL', label:'Total', cls:'s-all'},
+    {key:'Y', label:'Yes', cls:'s-y'},
+    {key:'Partial', label:'Partial', cls:'s-partial'},
+    {key:'N', label:'No', cls:'s-n'},
+    {key:'Unknown', label:'Unknown', cls:'s-unknown'},
+  ];
+  strip.innerHTML = defs.map(d=>`
+    <div class="stat ${d.cls} ${state.status===d.key || (d.key==='ALL' && !state.status) ? 'active':''}" data-status="${d.key}">
+      <span class="stat-num">${countByStatus(d.key)}</span>
+      <span class="stat-label">${d.label}</span>
+    </div>
+  `).join('');
+  strip.querySelectorAll('.stat').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const s = el.getAttribute('data-status');
+      state.status = (s==='ALL') ? null : (state.status===s ? null : s);
+      renderAll();
+    });
+  });
+}
+
+function renderCats(){
+  const list = document.getElementById('catList');
+  const cats = uniqueCats();
+  list.innerHTML = cats.map(c=>{
+    const count = DATA.filter(d=>d.cat===c).length;
+    return `<li data-cat="${encodeURIComponent(c)}" class="${state.cat===c?'active':''}">${c}<span class="cat-count">${count}</span></li>`;
+  }).join('');
+  list.querySelectorAll('li').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const c = decodeURIComponent(el.getAttribute('data-cat'));
+      state.cat = (state.cat===c) ? null : c;
+      renderAll();
+    });
+  });
+}
+
+function highlight(text, term){
+  if(!term) return escapeHtml(text);
+  const esc = escapeHtml(text);
+  const re = new RegExp('('+term.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  return esc.replace(re, '<mark>$1</mark>');
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderCards(){
+  const container = document.getElementById('cardContainer');
+  const meta = document.getElementById('resultsMeta');
+  const term = state.search.trim().toLowerCase();
+
+  let filtered = DATA.filter(d=>{
+    if(state.cat && d.cat !== state.cat) return false;
+    if(state.status && d.status !== state.status) return false;
+    if(term && !(d.q.toLowerCase().includes(term) || d.a.toLowerCase().includes(term) || d.cat.toLowerCase().includes(term) || (d.ref||'').toLowerCase().includes(term))) return false;
+    return true;
+  });
+
+  meta.innerHTML = `Showing <span>${filtered.length}</span> of <span>${DATA.length}</span> requirements <span class="view-toggle" id="viewToggle">${state.allCollapsed ? 'Expand all' : 'Collapse all'}</span>`;
+  document.getElementById('viewToggle').addEventListener('click', (e)=>{
+    e.stopPropagation();
+    state.allCollapsed = !state.allCollapsed;
+    renderCards();
+  });
+
+  if(filtered.length===0){
+    container.innerHTML = `<div class="empty-state"><p class="big">No matching entries</p><p>Try a different search term or clear your filters.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map((d,i)=>{
+    const cls = STATUS_CLASS[d.status] || 's-unknown';
+    const label = STATUS_LABEL[d.status] || d.status;
+    return `
+      <div class="card ${cls} ${state.allCollapsed ? 'collapsed':''}" data-idx="${DATA.indexOf(d)}">
+        <div class="card-top">
+          <div style="flex:1">
+            <div class="card-meta">
+              <span class="ref-tag">${d.ref||''}</span>
+              <span class="cat-tag">${d.cat}</span>
+              <span class="status-pill ${cls}">${label}</span>
+            </div>
+            <p class="card-q">${highlight(d.q, term)}</p>
+            <p class="req-type">${d.type||''}</p>
+          </div>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+        <p class="card-a">${highlight(d.a, term)}</p>
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.card').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      el.classList.toggle('collapsed');
+    });
+  });
+}
+
+function renderAll(){
+  renderStats();
+  renderCats();
+  renderCards();
+}
+
+document.getElementById('searchInput').addEventListener('input', (e)=>{
+  state.search = e.target.value;
+  renderCards();
+});
+document.getElementById('resetLink').addEventListener('click', ()=>{
+  state = { search:'', cat:null, status:null, allCollapsed:false };
+  document.getElementById('searchInput').value = '';
+  renderAll();
+});
+
+renderAll();
+</script>
+
+</body>
+</html>
